@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { usersAPI } from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -9,12 +9,9 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  useEffect(() => {
-    fetchUsers();
-  }, [filter]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
+      setLoading(true); // Ensure loading shows when filter changes
       const role = filter === 'all' ? null : filter;
       const response = await usersAPI.getAll(role);
       setUsers(response.data);
@@ -23,7 +20,13 @@ const AdminUsers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+ 
 
   const handleApprove = async (userId) => {
     try {
